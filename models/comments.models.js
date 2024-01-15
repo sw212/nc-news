@@ -11,3 +11,16 @@ module.exports.fetchCommentsByArticleID = (article_id) => {
         .query(query)
         .then((result) => result.rows);
 }
+
+module.exports.insertCommentByArticleID = (article_id, username, body) => {
+    const query = format(`\
+        INSERT INTO comments
+            (body, article_id, author)
+        VALUES
+            (%L, %L, %L)
+        RETURNING *`, body, article_id, username);
+    
+    return db
+        .query(query)
+        .then((result) => result.rows[0]);
+}

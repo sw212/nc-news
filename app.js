@@ -10,7 +10,8 @@ const {
     getArticleByID
 } = require("./controllers/articles.controllers");
 const {
-    getCommentsByArticleID
+    getCommentsByArticleID,
+    addCommentByArticleID,
 } = require("./controllers/comments.controllers");
 
 const PORT = 3000;
@@ -28,12 +29,19 @@ app.get("/api/articles/:article_id", getArticleByID);
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
 
+app.post("/api/articles/:article_id/comments", addCommentByArticleID);
 
 app.use((err, req, res, next) => {
-    const msg = {msg: "Bad request"};
-    const statusCode = err.statusCode ?? 400;
+    let message = {msg: "Bad request"};
+    let statusCode = err.statusCode ?? 400;
 
-    res.status(statusCode).send(msg);
+    if (err.code === "23503")
+    {
+        statusCode  = 404;
+        message.msg = "Not found";
+    }
+
+    res.status(statusCode).send(message);
 });
 
 app.use((req, res, next) => {
