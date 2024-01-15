@@ -2,6 +2,9 @@ const express = require("express");
 const {
     getTopics
 } = require("./controllers/topics.controllers");
+const {
+    getAPI
+} = require("./controllers/api.controllers");
 
 const PORT = 3000;
 const app = module.exports = express();
@@ -9,6 +12,8 @@ const app = module.exports = express();
 app.use(express.json());
 
 app.get("/api/topics", getTopics);
+
+app.get ("/api", getAPI);
 
 app.use((err, req, res, next) => {
     const msg = {msg: "Bad request"};
