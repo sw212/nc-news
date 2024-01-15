@@ -8,7 +8,7 @@ describe("/api", () => {
             const response = await request(app).get("/api");
             expect(response.statusCode).toBe(200);
 
-            const expectedResponse = await fs.readFile("endpoints.json", "utf-8");
+            const expectedResponse = JSON.parse(await fs.readFile("endpoints.json", "utf-8"));
             expect(response.body.api).toEqual(expectedResponse);
         });
     });
