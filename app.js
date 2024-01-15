@@ -5,6 +5,9 @@ const {
 const {
     getAPI
 } = require("./controllers/api.controllers");
+const {
+    getArticleByID
+} = require("./controllers/articles.controllers");
 
 const PORT = 3000;
 const app = module.exports = express();
@@ -13,7 +16,9 @@ app.use(express.json());
 
 app.get("/api/topics", getTopics);
 
-app.get ("/api", getAPI);
+app.get("/api", getAPI);
+
+app.get("/api/articles/:article_id", getArticleByID);
 
 app.use((err, req, res, next) => {
     const msg = {msg: "Bad request"};
