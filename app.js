@@ -9,6 +9,9 @@ const {
     getArticles,
     getArticleByID
 } = require("./controllers/articles.controllers");
+const {
+    getCommentsByArticleID
+} = require("./controllers/comments.controllers");
 
 const PORT = 3000;
 const app = module.exports = express();
@@ -22,6 +25,8 @@ app.get("/api", getAPI);
 app.get("/api/articles", getArticles);
 
 app.get("/api/articles/:article_id", getArticleByID);
+
+app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
 
 
 app.use((err, req, res, next) => {
