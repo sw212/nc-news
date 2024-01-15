@@ -115,7 +115,7 @@ describe("/api/articles/:article_id", () => {
                     .then((response) => {
                         expect(response.body.msg).toBe("Bad request");
                     });
-            })
+            });
         });
     });
 });
@@ -180,7 +180,91 @@ describe("/api/articles/:article_id/comments", () => {
                     .then((response) => {
                         expect(response.body.msg).toBe("Bad request");
                     });
-            })
+            });
+        });
+    });
+
+    describe("POST", () => {
+        describe("if valid article_id", () => {
+            test("201: responds with created comment", () => {
+                return request(app)
+                    .post("/api/articles/1/comments")
+                    .send({
+                        username: "butter_bridge",
+                        body: "TLDR"
+                    })
+                    .expect(201)
+                    .then((response) => {
+                        expect(response.body).toEqual({comment: "TLDR"});
+                    });
+            });
+
+            test("404: responds with error message if no article exists for given article_id", () => {
+                return request(app)
+                    .post("/api/articles/199/comments")
+                    .send({
+                        username: "butter_bridge",
+                        body: "TLDR"
+                    })
+                    .expect(404)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Not found");
+                    });
+            });
+
+            test("400: responds with error message if request body has missing information", () => {
+                return request(app)
+                    .post("/api/articles/1/comments")
+                    .send({
+                        username: "butter_bridge",
+                    })
+                    .expect(400)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Bad request");
+                    });
+            });
+
+
+            test("400: responds with error message if username is invalid", () => {
+                return request(app)
+                    .post("/api/articles/1/comments")
+                    .send({
+                        username: 404,
+                        body: "TLDR"
+                    })
+                    .expect(400)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Bad request");
+                    });
+            });
+
+            test("400: responds with error message if body is invalid", () => {
+                return request(app)
+                    .post("/api/articles/1/comments")
+                    .send({
+                        username: "butter_bridge",
+                        body: 404
+                    })
+                    .expect(400)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Bad request");
+                    });
+            });
+        });
+
+        describe("if invalid article_id", () => {
+            test("400: responds with error message", () => {
+                return request(app)
+                    .post("/api/articles/invalid/comments")
+                    .send({
+                        username: "butter_bridge",
+                        body: "TLDR"
+                    })
+                    .expect(400)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Bad request");
+                    });
+            });
         });
     });
 });

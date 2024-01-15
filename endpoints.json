@@ -58,5 +58,15 @@
                 }
             ]
         }
+    },
+    "POST /api/articles/:article_id/comments": {
+        "description": "adds a comment for given article_id",
+        "format": {
+            "username": "String",
+            "body":     "String"
+        },
+        "exampleResponse": {
+            "comment": "Superb article!"
+        }
     }
 }
