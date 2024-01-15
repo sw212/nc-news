@@ -119,3 +119,68 @@ describe("/api/articles/:article_id", () => {
         });
     });
 });
+
+describe("/api/articles/:article_id/comments", () => {
+    describe("GET", () => {
+        describe("if valid article_id", () => {
+            test("200: responds with an array of comments for given article_id", () => {
+                return request(app)
+                    .get("/api/articles/1/comments")
+                    .expect(200)
+                    .then((response) => {
+                        const comments = response.body.comments;
+                        expect(comments.length).toBe(11);
+
+                        comments.forEach((comment) => {
+                            expect(comment).toMatchObject({
+                                comment_id: expect.any(Number),
+                                votes: expect.any(Number),
+                                created_at: expect.any(String),
+                                author: expect.any(String),
+                                body: expect.any(String),
+                                article_id: expect.any(Number),
+                            });
+                        });
+                    });
+            });
+
+            test("200: comments by default are sorted by date (ASC)", () => {
+                return request(app)
+                    .get("/api/articles/1/comments")
+                    .expect(200)
+                    .then((response) => {
+                        expect(response.body.comments).toBeSortedBy('created_at', {descending: false});
+                    });
+            });
+
+            test("404: responds with error message if no article exists for given article_id", () => {
+                return request(app)
+                    .get("/api/articles/99/comments")
+                    .expect(404)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("No article/comments found");
+                    });
+            });
+
+            test("404: responds with error message if no comments exist for given article_id", () => {
+                return request(app)
+                    .get("/api/articles/2/comments")
+                    .expect(404)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("No article/comments found");
+                    });
+            });
+        });
+
+        describe("if invalid article_id", () => {
+            test("400: responds with error message", () => {
+                return request(app)
+                    .get("/api/articles/invalid/comments")
+                    .expect(400)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Bad request");
+                    });
+            })
+        });
+    });
+});
