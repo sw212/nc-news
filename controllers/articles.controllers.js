@@ -1,6 +1,20 @@
 const {
+    fetchArticles,
     fetchArticleByID
 } = require("../models/articles.models");
+
+/**@type {import("express").RequestHandler} */
+module.exports.getArticles = async (req, res, next) => {   
+    try
+    {
+        const articles = await fetchArticles();
+        res.status(200).send({articles});
+    }
+    catch(err)
+    {
+        next(err);
+    }
+}
 
 /**@type {import("express").RequestHandler} */
 module.exports.getArticleByID = async (req, res, next) => {

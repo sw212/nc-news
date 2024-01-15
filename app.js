@@ -6,6 +6,7 @@ const {
     getAPI
 } = require("./controllers/api.controllers");
 const {
+    getArticles,
     getArticleByID
 } = require("./controllers/articles.controllers");
 
@@ -18,7 +19,10 @@ app.get("/api/topics", getTopics);
 
 app.get("/api", getAPI);
 
+app.get("/api/articles", getArticles);
+
 app.get("/api/articles/:article_id", getArticleByID);
+
 
 app.use((err, req, res, next) => {
     const msg = {msg: "Bad request"};
