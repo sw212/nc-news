@@ -1,3 +1,13 @@
-# Northcoders News API
+# Getting Started
 
-For instructions, please head over to [L2C NC News](https://l2c.northcoders.com/courses/be/nc-news).
+Testing:
+Create a `.env.test` file in the root of this repository with the following
+```
+PGDATABASE=nc_news_test
+```
+
+Development:
+Create a `.env.development` file in the root of this repository with the following
+```
+PGDATABASE=nc_news
+```
