@@ -210,7 +210,7 @@ describe("/api/articles/:article_id/comments", () => {
                                 created_at: expect.any(String),
                                 author: expect.any(String),
                                 body: expect.any(String),
-                                article_id: expect.any(Number),
+                                article_id: 1,
                             });
                         });
                     });
@@ -225,21 +225,21 @@ describe("/api/articles/:article_id/comments", () => {
                     });
             });
 
+            test("200: responds with empty array if no comments exist for given article_id", () => {
+                return request(app)
+                    .get("/api/articles/2/comments")
+                    .expect(200)
+                    .then((response) => {
+                        expect(response.body.comments).toEqual([]);
+                    });
+            });
+
             test("404: responds with error message if no article exists for given article_id", () => {
                 return request(app)
                     .get("/api/articles/99/comments")
                     .expect(404)
                     .then((response) => {
-                        expect(response.body.msg).toBe("No article/comments found");
-                    });
-            });
-
-            test("404: responds with error message if no comments exist for given article_id", () => {
-                return request(app)
-                    .get("/api/articles/2/comments")
-                    .expect(404)
-                    .then((response) => {
-                        expect(response.body.msg).toBe("No article/comments found");
+                        expect(response.body.msg).toBe("Article not found");
                     });
             });
         });
