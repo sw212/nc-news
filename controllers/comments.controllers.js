@@ -4,22 +4,26 @@ const
     insertCommentByArticleID
 } = require("../models/comments.models");
 
+const {
+    fetchArticleByID
+} = require("../models/articles.models");
+
 /**@type {import("express").RequestHandler} */
 module.exports.getCommentsByArticleID = async (req, res, next) => {
     const { article_id } = req.params;
 
     try
     {
-        const comments = await fetchCommentsByArticleID(article_id);
+        const article_comments = await Promise.all([fetchArticleByID(article_id), fetchCommentsByArticleID(article_id)])
+        
+        const article = article_comments[0];
+        if (!article)
+        {
+            return next({statusCode: 404, msg: "Article not found"});
+        }
 
-        if (!comments.length)
-        {
-            res.status(404).send({msg: "No article/comments found"});
-        }
-        else
-        {
-            res.status(200).send({comments});
-        }
+        const comments = article_comments[1];
+        res.status(200).send({comments});
     }
     catch(err)
     {
