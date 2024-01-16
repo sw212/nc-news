@@ -1,7 +1,8 @@
 const
 {
     fetchCommentsByArticleID,
-    insertCommentByArticleID
+    insertCommentByArticleID,
+    deleteCommentByID,
 } = require("../models/comments.models");
 
 const {
@@ -50,6 +51,27 @@ module.exports.addCommentByArticleID = async (req, res, next) => {
 
         const comment = await insertCommentByArticleID(article_id, username, body);
         res.status(201).send({comment: comment.body});
+    }
+    catch(err)
+    {
+        next(err);
+    }
+}
+
+/**@type {import("express").RequestHandler} */
+module.exports.removeCommentByID = async (req, res, next) => {
+    const { comment_id } = req.params;
+
+    try
+    {
+        const comment = await deleteCommentByID(comment_id);
+
+        if (!comment)
+        {
+            return next({statusCode: 404, msg: "Comment not found"});
+        }
+
+        res.status(204).send();
     }
     catch(err)
     {

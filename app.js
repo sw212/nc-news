@@ -13,6 +13,7 @@ const {
 const {
     getCommentsByArticleID,
     addCommentByArticleID,
+    removeCommentByID,
 } = require("./controllers/comments.controllers");
 const {
     psqlErrorHandler,
@@ -37,6 +38,8 @@ app.patch("/api/articles/:article_id", modifyVoteByArticleID);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
 
 app.post("/api/articles/:article_id/comments", addCommentByArticleID);
+
+app.delete("/api/comments/:comment_id", removeCommentByID);
 
 
 app.use(psqlErrorHandler);
