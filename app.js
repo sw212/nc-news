@@ -16,6 +16,9 @@ const {
     removeCommentByID,
 } = require("./controllers/comments.controllers");
 const {
+    getUsers
+} = require("./controllers/users.controllers");
+const {
     psqlErrorHandler,
     errorHandler,
 } = require("./error");
@@ -40,6 +43,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
 app.post("/api/articles/:article_id/comments", addCommentByArticleID);
 
 app.delete("/api/comments/:comment_id", removeCommentByID);
+
+app.get("/api/users", getUsers);
 
 
 app.use(psqlErrorHandler);
