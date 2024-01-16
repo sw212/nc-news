@@ -73,6 +73,41 @@ describe("/api/articles", () => {
                     });
                 });
         });
+
+        describe("topic query", () => {
+            describe("if exists", () => {
+                test("200: responds with array of articles filtered by topic", () => {
+                    return request(app)
+                        .get("/api/articles?topic=mitch")
+                        .expect(200)
+                        .then((response) => {
+                            response.body.articles.forEach((article) => {
+                                expect(article).toMatchObject({
+                                    author: expect.any(String),
+                                    title: expect.any(String),
+                                    article_id: expect.any(Number),
+                                    topic: "mitch",
+                                    created_at: expect.any(String),
+                                    votes: expect.any(Number),
+                                    article_img_url: expect.any(String),
+                                    comment_count: expect.any(Number),
+                                });
+                            });
+                        });
+                });
+            });
+
+            describe("if does not exist", () => {
+                test("404: responds with error message", () => {
+                    return request(app)
+                        .get("/api/articles?topic=unknown")
+                        .expect(404)
+                        .then((response) => {
+                            expect(response.body.msg).toBe("Not found");
+                        })
+                })
+            });
+        });
     });
 });
 
