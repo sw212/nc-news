@@ -118,6 +118,78 @@ describe("/api/articles/:article_id", () => {
             });
         });
     });
+
+    describe("PATCH", () => {
+        describe("if valid article_id", () => {
+            test("200: responds with updated article", () => {
+                return request(app)
+                    .patch("/api/articles/1")
+                    .send({
+                        inc_votes: -10
+                    })
+                    .expect(200)
+                    .then((response) => {
+                        expect(response.body.article).toEqual({
+                            article_id: 1,
+                            title: "Living in the shadow of a great man",
+                            topic: "mitch",
+                            author: "butter_bridge",
+                            body: "I find this existence challenging",
+                            created_at: "2020-07-09T20:11:00.000Z",
+                            votes: 90,
+                            article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+                        });
+                    });
+            });
+
+            test("404: responds with error message if no article exists for given article_id", () => {
+                return request(app)
+                    .patch("/api/articles/99")
+                    .send({
+                        inc_votes: -10
+                    })
+                    .expect(404)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Article not found");
+                    });
+            });
+
+            test("400: responds with error message if invalid inc_votes", () => {
+                return request(app)
+                    .patch("/api/articles/1")
+                    .send({
+                        inc_votes: "ten",
+                    })
+                    .expect(400)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Bad request");
+                    });
+            });
+
+            test("400: responds with error message if missing body", () => {
+                return request(app)
+                    .patch("/api/articles/1")
+                    .expect(400)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Bad request");
+                    });
+            });
+        });
+
+        describe("if invalid article_id", () => {
+            test("400: responds with error message", () => {
+                return request(app)
+                    .patch("/api/articles/invalid")
+                    .send({
+                        inc_votes: -10,
+                    })
+                    .expect(400)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Bad request");
+                    });
+            });
+        });
+    })
 });
 
 describe("/api/articles/:article_id/comments", () => {
