@@ -24,3 +24,14 @@ module.exports.insertCommentByArticleID = (article_id, username, body) => {
         .query(query)
         .then((result) => result.rows[0]);
 }
+
+module.exports.deleteCommentByID = (comment_id) => {
+    const query = format(`\
+        DELETE FROM comments
+        WHERE comment_id = %L
+        RETURNING *`, comment_id);
+    
+    return db
+        .query(query)
+        .then((result) => result.rows[0]);
+}
