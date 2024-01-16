@@ -37,11 +37,15 @@ module.exports.addCommentByArticleID = async (req, res, next) => {
     const { username, body } = req.body;
     try
     {
-        if (typeof username !== "string" || typeof body !== "string" || Number.isNaN(parseInt(article_id)))
+        if (typeof username !== "string" || typeof body !== "string")
         {
-            const err = new Error("Bad request");
-            err.statusCode = 400;
-            throw err;
+            return next({statusCode: 400, msg: "Bad request"});
+        }
+
+        const article = await fetchArticleByID(article_id);
+        if (!article)
+        {
+            return next({statusCode: 404, msg: "Article not found"});
         }
 
         const comment = await insertCommentByArticleID(article_id, username, body);

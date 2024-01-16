@@ -14,6 +14,10 @@ const {
     getCommentsByArticleID,
     addCommentByArticleID,
 } = require("./controllers/comments.controllers");
+const {
+    psqlErrorHandler,
+    errorHandler,
+} = require("./error");
 
 const PORT = 3000;
 const app = module.exports = express();
@@ -35,18 +39,9 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
 app.post("/api/articles/:article_id/comments", addCommentByArticleID);
 
 
-app.use((err, req, res, next) => {
-    let message = {msg: err.msg ?? "Bad request"};
-    let statusCode = err.statusCode ?? 400;
+app.use(psqlErrorHandler);
 
-    if (err.code === "23503")
-    {
-        statusCode  = 404;
-        message.msg = "Not found";
-    }
-
-    res.status(statusCode).send(message);
-});
+app.use(errorHandler);
 
 app.use((req, res, next) => {
     res.status(404).send({msg: 'Not found'});
