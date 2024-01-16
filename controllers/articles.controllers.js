@@ -33,11 +33,6 @@ module.exports.getArticleByID = async (req, res, next) => {
     {
         const article = await fetchArticleByID(article_id);
 
-        if (!article)
-        {
-            return next({statusCode:404, msg: "Article not found"});
-        }
-
         res.status(200).send({article});
     }
     catch(err)
