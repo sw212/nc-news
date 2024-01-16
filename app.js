@@ -7,7 +7,8 @@ const {
 } = require("./controllers/api.controllers");
 const {
     getArticles,
-    getArticleByID
+    getArticleByID,
+    modifyVoteByArticleID,
 } = require("./controllers/articles.controllers");
 const {
     getCommentsByArticleID,
@@ -27,12 +28,15 @@ app.get("/api/articles", getArticles);
 
 app.get("/api/articles/:article_id", getArticleByID);
 
+app.patch("/api/articles/:article_id", modifyVoteByArticleID);
+
 app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
 
 app.post("/api/articles/:article_id/comments", addCommentByArticleID);
 
+
 app.use((err, req, res, next) => {
-    let message = {msg: "Bad request"};
+    let message = {msg: err.msg ?? "Bad request"};
     let statusCode = err.statusCode ?? 400;
 
     if (err.code === "23503")

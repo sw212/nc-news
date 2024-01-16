@@ -38,3 +38,17 @@ module.exports.fetchArticleByID = (article_id) => {
         .query(query)
         .then((result) => result.rows[0]);
 }
+
+module.exports.updateVoteByArticleID = (article_id, value) => {
+    const query = format(`\
+        UPDATE articles
+        SET
+            votes = %L
+        WHERE
+            article_id = %L
+        RETURNING *`, value, article_id);
+
+    return db
+        .query(query)
+        .then((result) => result.rows[0]);
+}
