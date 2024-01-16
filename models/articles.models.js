@@ -42,12 +42,25 @@ module.exports.fetchArticles = (topic) => {
 
 module.exports.fetchArticleByID = (article_id) => {
     const query = format(`
-        SELECT * FROM articles
-        WHERE article_id = %L;`, article_id);
+        SELECT articles.*, COUNT(comments) as comment_count FROM articles
+        LEFT JOIN comments ON articles.article_id = comments.article_id
+        WHERE articles.article_id = %L
+        GROUP BY articles.article_id;`, article_id);
 
     return db
         .query(query)
-        .then((result) => result.rows[0]);
+        .then((result) => {
+            if (!result.rows[0])
+            {
+                throw {statusCode: 404, msg: "Article not found"};
+            }
+            
+            // COUNT(comments) seems to be giving us a string
+            return {
+                ...result.rows[0],
+                comment_count: parseInt(result.rows[0].comment_count, 10),
+            }
+        });
 }
 
 module.exports.updateVoteByArticleID = (article_id, value) => {
