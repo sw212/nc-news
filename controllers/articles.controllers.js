@@ -5,10 +5,18 @@ const {
 } = require("../models/articles.models");
 
 /**@type {import("express").RequestHandler} */
-module.exports.getArticles = async (req, res, next) => {   
+module.exports.getArticles = async (req, res, next) => {
+    const { topic } = req.query;
+
     try
     {
-        const articles = await fetchArticles();
+        const articles = await fetchArticles(topic);
+
+        if (!articles.length)
+        {
+            throw {statusCode: 404, msg: "Not found"};
+        }
+
         res.status(200).send({articles});
     }
     catch(err)

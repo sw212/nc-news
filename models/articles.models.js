@@ -1,8 +1,17 @@
 const db = require("../db/connection");
 const format = require("pg-format");
 
-module.exports.fetchArticles = () => {
-    const query = `\
+module.exports.fetchArticles = (topic) => {
+    let filter = "WHERE 1=1 "
+    const filterArgs = [];
+
+    if (topic)
+    {
+        filter += "AND articles.topic = %L ";
+        filterArgs.push(topic);
+    }
+
+    const query = format(`\
     SELECT
         articles.author,
         articles.title,
@@ -14,13 +23,15 @@ module.exports.fetchArticles = () => {
         COUNT(comments) as comment_count
     FROM articles
     LEFT JOIN comments ON articles.article_id = comments.article_id
+    ${filter}
     GROUP BY articles.article_id
-    ORDER BY created_at DESC`;
+    ORDER BY created_at DESC`, ...filterArgs);
 
     return db
         .query(query)
         .then((result) => {
             result.rows.forEach((row) => {
+                // COUNT seems to be giving us a string
                 row.comment_count = parseInt(row.comment_count, 10);
             });
 
