@@ -18,7 +18,7 @@ describe("/api/articles", () => {
                 .get("/api/articles")
                 .expect(200)
                 .then((response) => {
-                    expect(response.body.articles.length).toBe(data.articleData.length);
+                    expect(response.body.articles.length).toBe(13);
 
                     response.body.articles.forEach((article) => {
                         expect(article).toMatchObject({
