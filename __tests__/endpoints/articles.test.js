@@ -271,6 +271,20 @@ describe("/api/articles/:article_id/comments", () => {
                     });
             });
 
+            test("201: ignores unnecessary properties on comment body", () => {
+                return request(app)
+                    .post("/api/articles/1/comments")
+                    .send({
+                        username: "butter_bridge",
+                        body: "TLDR",
+                        prop: "ignored",
+                    })
+                    .expect(201)
+                    .then((response) => {
+                        expect(response.body).toEqual({comment: "TLDR"});
+                    });
+            });
+
             test("404: responds with error message if no article exists for given article_id", () => {
                 return request(app)
                     .post("/api/articles/199/comments")
@@ -280,7 +294,7 @@ describe("/api/articles/:article_id/comments", () => {
                     })
                     .expect(404)
                     .then((response) => {
-                        expect(response.body.msg).toBe("Not found");
+                        expect(response.body.msg).toBe("Article not found");
                     });
             });
 
