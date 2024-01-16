@@ -27,12 +27,10 @@ module.exports.getArticleByID = async (req, res, next) => {
 
         if (!article)
         {
-            res.status(404).send({msg: "Article not found"});
+            return next({statusCode:404, msg: "Article not found"});
         }
-        else
-        {
-            res.status(200).send({article});
-        }
+
+        res.status(200).send({article});
     }
     catch(err)
     {
