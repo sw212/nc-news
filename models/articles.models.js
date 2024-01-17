@@ -29,7 +29,7 @@ module.exports.fetchArticles = (topic) => {
 
     return db
         .query(query)
-        .then((result) => result.rows);       
+        .then((result) => result.rows);
 }
 
 module.exports.fetchArticleByID = (article_id) => {

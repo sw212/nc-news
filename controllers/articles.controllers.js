@@ -14,7 +14,7 @@ module.exports.getArticles = async (req, res, next) => {
 
         if (!articles.length)
         {
-            throw {statusCode: 404, msg: "Not found"};
+            next({statusCode: 404, msg: "Not found"});
         }
 
         res.status(200).send({articles});
