@@ -74,7 +74,7 @@ describe("/api/articles", () => {
                 });
         });
 
-        describe("topic query", () => {
+        describe("query: topic", () => {
             describe("if exists", () => {
                 test("200: responds with array of articles filtered by topic", () => {
                     return request(app)
@@ -95,6 +95,15 @@ describe("/api/articles", () => {
                             });
                         });
                 });
+
+                test("200: responds with empty array if topic exists but has no articles", () => {
+                    return request(app)
+                        .get("/api/articles?topic=paper")
+                        .expect(200)
+                        .then((response) => {
+                            expect(response.body.articles).toEqual([]);
+                        });
+                })
             });
 
             describe("if does not exist", () => {

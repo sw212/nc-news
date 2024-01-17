@@ -3,6 +3,9 @@ const {
     fetchArticleByID,
     updateVoteByArticleID
 } = require("../models/articles.models");
+const {
+    checkTopicExists
+} = require("../models/topics.model");
 
 /**@type {import("express").RequestHandler} */
 module.exports.getArticles = async (req, res, next) => {
@@ -10,9 +13,11 @@ module.exports.getArticles = async (req, res, next) => {
 
     try
     {
-        const articles = await fetchArticles(topic);
+        const articles_topic = await Promise.all([fetchArticles(topic), checkTopicExists(topic)]);
+        const articles    = articles_topic[0];
+        const topicExists = articles_topic[1];
 
-        if (!articles.length)
+        if (!articles.length && !topicExists)
         {
             return next({statusCode: 404, msg: "Not found"});
         }
