@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const format = require("pg-format");
 
 module.exports.fetchUsers = () => {
     const query = `\
@@ -7,4 +8,14 @@ module.exports.fetchUsers = () => {
     return db
         .query(query)
         .then((result) => result.rows);
+}
+
+module.exports.fetchUser = (username) => {
+    const query = format(`\
+        SELECT username, name, avatar_url FROM users
+        WHERE username = %L`, username);
+
+    return db
+        .query(query)
+        .then((result) => result.rows[0]);
 }

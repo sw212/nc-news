@@ -1,4 +1,5 @@
 const express = require("express");
+const Router  = express.Router;
 const {
     getTopics
 } = require("./controllers/topics.controllers");
@@ -16,7 +17,8 @@ const {
     removeCommentByID,
 } = require("./controllers/comments.controllers");
 const {
-    getUsers
+    getUsers,
+    getUser,
 } = require("./controllers/users.controllers");
 const {
     psqlErrorHandler,
@@ -28,23 +30,23 @@ const app = module.exports = express();
 
 app.use(express.json());
 
-app.get("/api/topics", getTopics);
-
 app.get("/api", getAPI);
+
+app.get("/api/topics", getTopics);
 
 app.get("/api/articles", getArticles);
 
 app.get("/api/articles/:article_id", getArticleByID);
-
 app.patch("/api/articles/:article_id", modifyVoteByArticleID);
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
-
 app.post("/api/articles/:article_id/comments", addCommentByArticleID);
 
 app.delete("/api/comments/:comment_id", removeCommentByID);
 
 app.get("/api/users", getUsers);
+
+app.get("/api/users/:username", getUser)
 
 
 app.use(psqlErrorHandler);
