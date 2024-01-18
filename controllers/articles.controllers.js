@@ -9,11 +9,14 @@ const {
 
 /**@type {import("express").RequestHandler} */
 module.exports.getArticles = async (req, res, next) => {
-    const { topic } = req.query;
+    let { topic, sort_by, order } = req.query;
+
+    sort_by = sort_by ?? "created_at";
+    order   = order ? order.toUpperCase() : "DESC";
 
     try
     {
-        const articles_topic = await Promise.all([fetchArticles(topic), checkTopicExists(topic)]);
+        const articles_topic = await Promise.all([fetchArticles(topic, sort_by, order), checkTopicExists(topic)]);
         const articles    = articles_topic[0];
         const topicExists = articles_topic[1];
 

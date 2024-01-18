@@ -117,6 +117,70 @@ describe("/api/articles", () => {
                 })
             });
         });
+
+        describe("query: sort_by, order", () => {
+            describe("if valid", () => {
+                test("200: articles sorted by author (ASC) when explicitly passing sort_by=author and order=asc query", () => {
+                    return request(app)
+                        .get("/api/articles?sort_by=author&order=asc")
+                        .expect(200)
+                        .then((response) => {
+                            expect(response.body.articles.length).toBe(13);
+                            expect(response.body.articles).toBeSortedBy('author', {descending: false});
+                        });
+                });
+
+                test("200: articles sorted by title (DESC) when explicitly passing sort_by=title and order=DESC query", () => {
+                    return request(app)
+                        .get("/api/articles?sort_by=title&order=DESC")
+                        .expect(200)
+                        .then((response) => {
+                            expect(response.body.articles.length).toBe(13);
+                            expect(response.body.articles).toBeSortedBy('title', {descending: true});
+                        });
+                });
+
+                test("200: articles sorted by title using default order (DESC) when explicitly passing sort_by=title query", () => {
+                    return request(app)
+                        .get("/api/articles?sort_by=title")
+                        .expect(200)
+                        .then((response) => {
+                            expect(response.body.articles.length).toBe(13);
+                            expect(response.body.articles).toBeSortedBy('title', {descending: true});
+                        });
+                });
+
+                test("200: articles default to being sorted by date (ASC) when explicitly passing order=asc query", () => {
+                    return request(app)
+                        .get("/api/articles?order=asc")
+                        .expect(200)
+                        .then((response) => {
+                            expect(response.body.articles.length).toBe(13);
+                            expect(response.body.articles).toBeSortedBy('created_at', {descending: false});
+                        });
+                });
+            });
+
+            describe("if invalid", () => {
+                test("400: responds with error message if order query is invalid", () => {
+                    return request(app)
+                        .get("/api/articles?order=invalid")
+                        .expect(400)
+                        .then((response) => {
+                            expect(response.body.msg).toBe("Invalid order query, order must be either 'asc' or 'desc'");
+                        });
+                });
+
+                test("400: responds with error message if sort_by query is invalid", () => {
+                    return request(app)
+                        .get("/api/articles?sort_by=invalid")
+                        .expect(400)
+                        .then((response) => {
+                            expect(response.body.msg).toBe("column 'invalid' does not exist");
+                        });
+                });
+            });
+        });
     });
 });
 

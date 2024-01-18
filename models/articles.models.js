@@ -1,7 +1,12 @@
 const db = require("../db/connection");
 const format = require("pg-format");
 
-module.exports.fetchArticles = (topic) => {
+module.exports.fetchArticles = (topic, sort_by, order) => {
+    if (order !== "ASC" && order !== "DESC")
+    {
+        throw {statusCode: 400, msg: "Invalid order query, order must be either 'asc' or 'desc'"};
+    }
+    
     let filter = "WHERE 1=1 "
     const filterArgs = [];
 
@@ -25,7 +30,7 @@ module.exports.fetchArticles = (topic) => {
     LEFT JOIN comments ON articles.article_id = comments.article_id
     ${filter}
     GROUP BY articles.article_id
-    ORDER BY created_at DESC`, ...filterArgs);
+    ORDER BY %I %s`, ...filterArgs, sort_by, order);
 
     return db
         .query(query)
