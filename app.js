@@ -1,7 +1,8 @@
 const express = require("express");
 const Router  = express.Router;
 const {
-    getTopics
+    getTopics,
+    addTopic,
 } = require("./controllers/topics.controllers");
 const {
     getAPI
@@ -35,6 +36,7 @@ app.use(express.json());
 app.get("/api", getAPI);
 
 app.get("/api/topics", getTopics);
+app.post("/api/topics", addTopic);
 
 app.get("/api/articles", getArticles);
 app.post("/api/articles", addArticle);
