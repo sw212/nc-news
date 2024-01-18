@@ -552,7 +552,7 @@ describe("/api/articles/:article_id/comments", () => {
                     .expect(200)
                     .then((response) => {
                         const comments = response.body.comments;
-                        expect(comments.length).toBe(11);
+                        expect(comments.length).toBe(10);
 
                         comments.forEach((comment) => {
                             expect(comment).toMatchObject({
@@ -567,12 +567,12 @@ describe("/api/articles/:article_id/comments", () => {
                     });
             });
 
-            test("200: comments by default are sorted by date (ASC)", () => {
+            test("200: comments by default are sorted by most recent comments first (DESC)", () => {
                 return request(app)
                     .get("/api/articles/1/comments")
                     .expect(200)
                     .then((response) => {
-                        expect(response.body.comments).toBeSortedBy('created_at', {descending: false});
+                        expect(response.body.comments).toBeSortedBy('created_at', {descending: true});
                     });
             });
 
@@ -592,6 +592,79 @@ describe("/api/articles/:article_id/comments", () => {
                     .then((response) => {
                         expect(response.body.msg).toBe("Article not found");
                     });
+            });
+
+            describe("query: limit, p", () => {
+                describe("if valid", () => {
+                    test("200: matches default behaviour when explicity passing limit=10 and p=1", async () => {
+                        const response = await request(app).get("/api/articles/1/comments?limit=10&p=1");
+                        const defaultResponse = await request(app).get("/api/articles/1/comments");
+                        
+                        expect(response.body.comments).toEqual(defaultResponse.body.comments);
+                    });
+    
+                    test("200: returns most recent comment (by date) if limit=1 and p=1", () => {
+                        return request(app)
+                            .get("/api/articles/1/comments?limit=1&p=1")
+                            .expect(200)
+                            .then((response) => {
+                                expect(response.body.comments).toEqual([
+                                    {
+                                        article_id: 1,
+                                        author: "icellusedkars",
+                                        body: "I hate streaming noses",
+                                        comment_id: 5,
+                                        votes: 0,
+                                        created_at: "2020-11-03T21:00:00.000Z",
+                                    }
+                                ]);
+                            });
+                    });
+    
+                    test("200: returns all comments when limit is greater than number of comments", () => {
+                        return request(app)
+                            .get("/api/articles/1/comments?limit=100")
+                            .expect(200)
+                            .then((response) => {
+                                expect(response.body.comments.length).toEqual(11);
+                            });
+                    });
+    
+                    test("200: returns empty array of comments when limit is greater than number of comments and p > 1", () => {
+                        return request(app)
+                            .get("/api/articles/1/comments?limit=100&p=2")
+                            .expect(200)
+                            .then((response) => {
+                                expect(response.body.comments.length).toEqual(0);
+                            });
+                    });
+    
+                    test("200: returns correct array of comments when limit=2 and p=2", () => {
+                        return request(app)
+                            .get("/api/articles/1/comments?limit=2&p=2")
+                            .expect(200)
+                            .then((response) => {
+                                expect(response.body.comments).toEqual([
+                                    {
+                                        comment_id: 18,
+                                        body: "This morning, I showered for nine minutes.",
+                                        votes: 16,
+                                        author: "butter_bridge",
+                                        article_id: 1,
+                                        created_at: "2020-07-21T00:20:00.000Z",
+                                    },
+                                    {
+                                        comment_id: 13,
+                                        body: "Fruit pastilles",
+                                        votes: 0,
+                                        author: "icellusedkars",
+                                        article_id: 1,
+                                        created_at: "2020-06-15T10:25:00.000Z",
+                                    },
+                                ]);
+                            });
+                    });
+                });
             });
         });
 

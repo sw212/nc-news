@@ -1,11 +1,20 @@
 const db = require("../db/connection");
 const format = require("pg-format");
 
-module.exports.fetchCommentsByArticleID = (article_id) => {
+module.exports.fetchCommentsByArticleID = (article_id, limit, page) => {
+    limit = Number(limit);
+    page  = Number(page);
+    if (Number.isNaN(limit) || Number.isNaN(page))
+    {
+        throw {statusCode: 400, msg: "Bad request"};
+    }
+    const offset = (page - 1) * limit;
+
     const query = format(`\
         SELECT * FROM comments
         WHERE article_id = %L
-        ORDER BY created_at ASC`, article_id);
+        ORDER BY created_at DESC
+        LIMIT %L OFFSET %L`, article_id, limit, offset);
     
     return db
         .query(query)
