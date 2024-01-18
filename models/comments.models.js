@@ -45,6 +45,18 @@ module.exports.deleteCommentByID = (comment_id) => {
         .then((result) => result.rows[0]);
 }
 
+module.exports.deleteCommentsByArticleID = (article_id) => {
+    const query = format(`\
+        DELETE FROM comments
+        WHERE article_id = %L
+        RETURNING *`, article_id);
+    
+    return db
+        .query(query)
+        .then((result) => result.rows[0]);
+}
+
+
 module.exports.incrementVoteByCommentID = (comment_id, value) => {
     const query = format(`\
         UPDATE comments

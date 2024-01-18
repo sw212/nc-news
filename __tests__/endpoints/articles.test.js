@@ -541,6 +541,52 @@ describe("/api/articles/:article_id", () => {
             });
         });
     });
+
+    describe("DELETE", () => {
+        describe("if valid article_id", () => {
+            test("204: successfully removes article", async () => {
+                {
+                    const response = await request(app).delete("/api/articles/1");
+                    expect(response.statusCode).toBe(204);
+                    expect(response.body).toEqual({});
+
+                    const articleResponse = await request(app).get("/api/articles/1");
+                    expect(articleResponse.statusCode).toBe(404);
+                    expect(articleResponse.body.msg).toBe("Article not found");
+
+                    const commentsResponse = await request(app).get("/api/articles/1/comments");
+                    expect(commentsResponse.statusCode).toBe(404);
+                    expect(commentsResponse.body.msg).toBe("Article not found");
+                }
+
+                {
+                    const response = await request(app).delete("/api/articles/1");
+                    expect(response.statusCode).toBe(404);
+                    expect(response.body.msg).toBe("Article not found");
+                }
+            });
+
+            test("404: responds with error message if no article exists with given article_id", () => {
+                return request(app)
+                    .delete("/api/articles/99")
+                    .expect(404)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Article not found");
+                    });
+            })
+        });
+
+        describe("if invalid article_id", () => {
+            test("400: responds with error message", () => {
+                return request(app)
+                    .delete("/api/articles/invalid")
+                    .expect(400)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Bad request");
+                    });
+            })
+        })
+    });
 });
 
 describe("/api/articles/:article_id/comments", () => {

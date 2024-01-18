@@ -3,6 +3,7 @@ const {
     fetchArticleByID,
     updateVoteByArticleID,
     insertArticle,
+    deleteArticleByID,
 } = require("../models/articles.models");
 const {
     checkTopicExists
@@ -10,6 +11,9 @@ const {
 const {
     checkUserExists
 } = require("../models/users.models");
+const {
+    deleteCommentsByArticleID,
+} = require("../models/comments.models");
 
 /**@type {import("express").RequestHandler} */
 module.exports.getArticles = async (req, res, next) => {
@@ -119,5 +123,26 @@ module.exports.addArticle = async (req, res, next) => {
     {
         next(err);
     }
+}
 
+/**@type {import("express").RequestHandler} */
+module.exports.removeArticleByID = async (req, res, next) => {
+    const { article_id } = req.params;
+    
+    try
+    {
+        const comments = await deleteCommentsByArticleID(article_id);
+        const article = await deleteArticleByID(article_id);
+        
+        if (!article)
+        {
+            return next({statusCode: 404, msg: "Article not found"});
+        }
+        
+        res.status(204).send();
+    }
+    catch(err)
+    {
+        next(err);
+    }
 }

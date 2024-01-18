@@ -104,3 +104,14 @@ module.exports.insertArticle = (article) => {
         .query(query)
         .then((result) => result.rows[0]);
 }
+
+module.exports.deleteArticleByID = (article_id) => {
+    const query = format(`\
+        DELETE FROM articles
+        WHERE article_id = %L
+        RETURNING *`, article_id);
+
+    return db
+        .query(query)
+        .then((result) => result.rows[0]);
+}
