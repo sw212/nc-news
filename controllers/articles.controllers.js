@@ -1,11 +1,15 @@
 const {
     fetchArticles,
     fetchArticleByID,
-    updateVoteByArticleID
+    updateVoteByArticleID,
+    insertArticle,
 } = require("../models/articles.models");
 const {
     checkTopicExists
 } = require("../models/topics.model");
+const {
+    checkUserExists
+} = require("../models/users.models");
 
 /**@type {import("express").RequestHandler} */
 module.exports.getArticles = async (req, res, next) => {
@@ -66,6 +70,52 @@ module.exports.modifyVoteByArticleID = async (req, res, next) => {
         const updatedArticle = await updateVoteByArticleID(article_id, votes);
 
         res.status(200).send({article: updatedArticle});
+    }
+    catch(err)
+    {
+        next(err);
+    }
+}
+
+/**@type {import("express").RequestHandler} */
+module.exports.addArticle = async (req, res, next) => {
+    const article = req.body;
+
+    const required_keys = ["author", "title", "body", "topic"];
+    for (let i = 0; i < required_keys.length; i++)
+    {
+        if (typeof article[required_keys[i]] !== "string")
+        {
+            return next({statusCode:400, msg: "Bad request"});
+        }
+    }
+
+    const optional_keys = ["article_img_url"];
+    for (let i = 0; i < optional_keys.length; i++)
+    {
+        if  (article[optional_keys[i]] && typeof article[optional_keys[i]] !== "string")
+        {
+            return next({statusCode:400, msg: "Bad request"});
+        }
+    }
+
+    try
+    {
+        const [userExits, topicExists] = await Promise.all([checkUserExists(article.author), checkTopicExists(article.topic)]);
+
+        if (!userExits)
+        {
+            return next({statusCode:404, msg: "Author not found"});
+        }
+
+        if (!topicExists)
+        {
+            return next({statusCode:404, msg: "Topic not found"});
+        }
+
+        const newArticle = await insertArticle(article);
+
+        res.status(201).send({article: {...newArticle, comment_count: 0}});
     }
     catch(err)
     {

@@ -69,3 +69,29 @@ module.exports.updateVoteByArticleID = (article_id, value) => {
         .query(query)
         .then((result) => result.rows[0]);
 }
+
+module.exports.insertArticle = (article) => {
+    let columns = "(title, topic, author, body";
+    const args = [article.title, article.topic, article.author, article.body];
+
+    if (article.article_img_url)
+    {
+        columns += ", article_img_url)";
+        args.push(article.article_img_url);
+    }
+    else
+    {
+        columns += ")";
+    }
+    
+    const query = format(`\
+        INSERT INTO articles
+            %s
+        VALUES
+            %L
+        RETURNING *`, columns, [args]);
+    
+    return db
+        .query(query)
+        .then((result) => result.rows[0]);
+}

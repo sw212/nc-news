@@ -182,6 +182,149 @@ describe("/api/articles", () => {
             });
         });
     });
+
+    describe("POST", () => {
+        const author = "icellusedkars";
+        const title = "ABC";
+        const body = "The quick brown fox jumps over the lazy dog";
+        const topic = "cats";
+        const default_article_img_url = "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700";
+
+        describe("if valid article", () => {
+            test("201: responds with created comment", () => {
+                return request(app)
+                    .post("/api/articles")
+                    .send({author, title, body, topic})
+                    .expect(201)
+                    .then((response) => {
+                        expect(response.body.article).toMatchObject({
+                            article_id: 14,
+                            author,
+                            title,
+                            body,
+                            topic,
+                            votes: 0,
+                            comment_count: 0,
+                            created_at: expect.any(String),
+                            article_img_url: default_article_img_url,
+                        });
+                    });
+            });
+
+            test("201: responds with created comment if custom article_img_url is given", () => {
+                const custom_article_img_url = "https://www.this.com/pic.jpg";
+                return request(app)
+                    .post("/api/articles")
+                    .send({author, title, body, topic, article_img_url: "https://www.this.com/pic.jpg"})
+                    .expect(201)
+                    .then((response) => {
+                        expect(response.body.article.article_img_url).toBe("https://www.this.com/pic.jpg");
+                    });
+            });
+
+            test("201: ignores unnecessary properties on comment body", () => {
+                return request(app)
+                    .post("/api/articles")
+                    .send({author, title, body, topic, prop: 'ignored'})
+                    .expect(201)
+                    .then((response) => {
+                        expect(response.body.article).toMatchObject({
+                            article_id: 14,
+                            author,
+                            title,
+                            body,
+                            topic,
+                            votes: 0,
+                            comment_count: 0,
+                            created_at: expect.any(String),
+                            article_img_url: default_article_img_url,
+                        });
+                    });
+            });
+
+            test("404: author does not match any existing users(username)", () => {
+                return request(app)
+                    .post("/api/articles")
+                    .send({author: "user404", title, body, topic})
+                    .expect(404)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Author not found");
+                    });
+            });
+
+            test("404: topic does not match any existing topics(slug)", () => {
+                return request(app)
+                    .post("/api/articles")
+                    .send({author, title, body, topic: "topic404"})
+                    .expect(404)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Topic not found");
+                    });
+            });
+        });
+
+        describe("if invalid article", () => {
+            test("400: responds with error message if author is missing", () => {
+                return request(app)
+                    .post("/api/articles")
+                    .send({title, body, topic})
+                    .expect(400)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Bad request");
+                    });
+            });
+
+            test("400: responds with error message if title is missing", () => {
+                return request(app)
+                    .post("/api/articles")
+                    .send({author, body, topic})
+                    .expect(400)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Bad request");
+                    });
+            });
+
+            test("400: responds with error message if body is missing", () => {
+                return request(app)
+                    .post("/api/articles")
+                    .send({author, title, topic})
+                    .expect(400)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Bad request");
+                    });
+            });
+
+            test("400: responds with error message if topic is missing", () => {
+                return request(app)
+                    .post("/api/articles")
+                    .send({author, title, body})
+                    .expect(400)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Bad request");
+                    });
+            });
+
+            test("400: responds with error message if invalid article_img_url", () => {
+                return request(app)
+                    .post("/api/articles")
+                    .send({author, title, body, topic, article_img_url: 666})
+                    .expect(400)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Bad request");
+                    });
+            });
+
+            test("400: responds with error message if invalid author", () => {
+                return request(app)
+                    .post("/api/articles")
+                    .send({author: 400, title, body, topic})
+                    .expect(400)
+                    .then((response) => {
+                        expect(response.body.msg).toBe("Bad request");
+                    });
+            });
+        });
+    });
 });
 
 describe("/api/articles/:article_id", () => {
