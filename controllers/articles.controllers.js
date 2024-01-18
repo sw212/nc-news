@@ -13,18 +13,16 @@ const {
 
 /**@type {import("express").RequestHandler} */
 module.exports.getArticles = async (req, res, next) => {
-    let { topic, sort_by, order } = req.query;
+    let { topic, sort_by, order, limit = "10", p = "1" } = req.query;
 
     sort_by = sort_by ?? "created_at";
     order   = order ? order.toUpperCase() : "DESC";
 
     try
     {
-        const articles_topic = await Promise.all([fetchArticles(topic, sort_by, order), checkTopicExists(topic)]);
-        const articles    = articles_topic[0];
-        const topicExists = articles_topic[1];
+        const [articles, topicExists] = await Promise.all([fetchArticles(topic, sort_by, order, limit, p), checkTopicExists(topic)]);
 
-        if (!articles.length && !topicExists)
+        if (topic && !topicExists)
         {
             return next({statusCode: 404, msg: "Not found"});
         }

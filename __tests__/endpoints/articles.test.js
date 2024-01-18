@@ -18,7 +18,7 @@ describe("/api/articles", () => {
                 .get("/api/articles")
                 .expect(200)
                 .then((response) => {
-                    expect(response.body.articles.length).toBe(13);
+                    expect(response.body.articles.length).toBe(10);
 
                     response.body.articles.forEach((article) => {
                         expect(article).toMatchObject({
@@ -125,7 +125,7 @@ describe("/api/articles", () => {
                         .get("/api/articles?sort_by=author&order=asc")
                         .expect(200)
                         .then((response) => {
-                            expect(response.body.articles.length).toBe(13);
+                            expect(response.body.articles.length).toBe(10);
                             expect(response.body.articles).toBeSortedBy('author', {descending: false});
                         });
                 });
@@ -135,7 +135,7 @@ describe("/api/articles", () => {
                         .get("/api/articles?sort_by=title&order=DESC")
                         .expect(200)
                         .then((response) => {
-                            expect(response.body.articles.length).toBe(13);
+                            expect(response.body.articles.length).toBe(10);
                             expect(response.body.articles).toBeSortedBy('title', {descending: true});
                         });
                 });
@@ -145,7 +145,7 @@ describe("/api/articles", () => {
                         .get("/api/articles?sort_by=title")
                         .expect(200)
                         .then((response) => {
-                            expect(response.body.articles.length).toBe(13);
+                            expect(response.body.articles.length).toBe(10);
                             expect(response.body.articles).toBeSortedBy('title', {descending: true});
                         });
                 });
@@ -155,7 +155,7 @@ describe("/api/articles", () => {
                         .get("/api/articles?order=asc")
                         .expect(200)
                         .then((response) => {
-                            expect(response.body.articles.length).toBe(13);
+                            expect(response.body.articles.length).toBe(10);
                             expect(response.body.articles).toBeSortedBy('created_at', {descending: false});
                         });
                 });
@@ -177,6 +177,105 @@ describe("/api/articles", () => {
                         .expect(400)
                         .then((response) => {
                             expect(response.body.msg).toBe("column 'invalid' does not exist");
+                        });
+                });
+            });
+        });
+
+        describe("query: limit, p", () => {
+            describe("if valid", () => {
+                test("200: matches default behaviour when explicity passing limit=10 and p=1", async () => {
+                    const response = await request(app).get("/api/articles?limit=10&p=1");
+                    const defaultResponse = await request(app).get("/api/articles");
+                    
+                    expect(response.body.articles).toEqual(defaultResponse.body.articles);
+                });
+
+                test("200: returns latest article (by date) if limit=1 and p=1", () => {
+                    return request(app)
+                        .get("/api/articles?limit=1&p=1")
+                        .expect(200)
+                        .then((response) => {
+                            expect(response.body.articles).toEqual([
+                                {
+                                    article_id: 3,
+                                    title: "Eight pug gifs that remind me of mitch",
+                                    topic: "mitch",
+                                    author: "icellusedkars",
+                                    created_at: "2020-11-03T09:12:00.000Z",
+                                    votes: 0,
+                                    article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+                                    comment_count: 2,
+                                }
+                            ]);
+                        });
+                });
+
+                test("200: returns all articles when limit is greater than number of articles", () => {
+                    return request(app)
+                        .get("/api/articles?limit=100")
+                        .expect(200)
+                        .then((response) => {
+                            expect(response.body.articles.length).toEqual(13);
+                        });
+                });
+
+                test("200: returns empty array of articles when limit is greater than number of articles and p > 1", () => {
+                    return request(app)
+                        .get("/api/articles?limit=100&p=2")
+                        .expect(200)
+                        .then((response) => {
+                            expect(response.body.articles.length).toEqual(0);
+                        });
+                });
+
+                test("200: returns correct array of articles when limit=2 and p=2", () => {
+                    return request(app)
+                        .get("/api/articles?limit=2&p=2")
+                        .expect(200)
+                        .then((response) => {
+                            expect(response.body.articles).toEqual([
+                                {
+                                    article_id: 2,
+                                    title: "Sony Vaio; or, The Laptop",
+                                    topic: "mitch",
+                                    author: "icellusedkars",
+                                    created_at: "2020-10-16T05:03:00.000Z",
+                                    article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+                                    votes: 0,
+                                    comment_count: 0,
+                                  },
+                                  {
+                                    article_id: 13,
+                                    title: "Another article about Mitch",
+                                    topic: "mitch",
+                                    author: "butter_bridge",
+                                    created_at: "2020-10-11T11:24:00.000Z",
+                                    article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+                                    votes: 0,
+                                    comment_count: 0,
+                                  },
+                            ]);
+                        });
+                });
+            });
+            
+            describe("if invalid", () => {
+                test("400: responds with error message if limit query is invalid", () => {
+                    return request(app)
+                        .get("/api/articles?limit=one")
+                        .expect(400)
+                        .then((response) => {
+                            expect(response.body.msg).toBe("Bad request");
+                        });
+                });
+
+                test("400: responds with error message if p query is invalid", () => {
+                    return request(app)
+                        .get("/api/articles?p=one")
+                        .expect(400)
+                        .then((response) => {
+                            expect(response.body.msg).toBe("Bad request");
                         });
                 });
             });

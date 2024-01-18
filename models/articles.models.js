@@ -1,11 +1,19 @@
 const db = require("../db/connection");
 const format = require("pg-format");
 
-module.exports.fetchArticles = (topic, sort_by, order) => {
+module.exports.fetchArticles = (topic, sort_by, order, limit, page) => {
     if (order !== "ASC" && order !== "DESC")
     {
         throw {statusCode: 400, msg: "Invalid order query, order must be either 'asc' or 'desc'"};
     }
+
+    limit = Number(limit);
+    page  = Number(page);
+    if (Number.isNaN(limit) || Number.isNaN(page))
+    {
+        throw {statusCode: 400, msg: "Bad request"};
+    }
+    const offset = (page - 1) * limit;
     
     let filter = "WHERE 1=1 "
     const filterArgs = [];
@@ -30,7 +38,8 @@ module.exports.fetchArticles = (topic, sort_by, order) => {
     LEFT JOIN comments ON articles.article_id = comments.article_id
     ${filter}
     GROUP BY articles.article_id
-    ORDER BY %I %s`, ...filterArgs, sort_by, order);
+    ORDER BY %I %s
+    LIMIT %L OFFSET %L`, ...filterArgs, sort_by, order, limit, offset);
 
     return db
         .query(query)
