@@ -298,7 +298,7 @@ describe("/api/articles/:article_id", () => {
                     });
             });
         });
-    })
+    });
 });
 
 describe("/api/articles/:article_id/comments", () => {

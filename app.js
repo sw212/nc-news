@@ -15,6 +15,7 @@ const {
     getCommentsByArticleID,
     addCommentByArticleID,
     removeCommentByID,
+    modifyVoteByCommentID,
 } = require("./controllers/comments.controllers");
 const {
     getUsers,
@@ -43,6 +44,7 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleID);
 app.post("/api/articles/:article_id/comments", addCommentByArticleID);
 
 app.delete("/api/comments/:comment_id", removeCommentByID);
+app.patch("/api/comments/:comment_id", modifyVoteByCommentID);
 
 app.get("/api/users", getUsers);
 

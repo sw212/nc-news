@@ -35,3 +35,17 @@ module.exports.deleteCommentByID = (comment_id) => {
         .query(query)
         .then((result) => result.rows[0]);
 }
+
+module.exports.incrementVoteByCommentID = (comment_id, value) => {
+    const query = format(`\
+        UPDATE comments
+        SET
+            votes = votes + %L
+        WHERE
+            comment_id = %L
+        RETURNING *`, value, comment_id);
+    
+    return db
+        .query(query)
+        .then((result) => result.rows[0]);
+}
