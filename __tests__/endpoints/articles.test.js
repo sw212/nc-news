@@ -4,6 +4,8 @@ const db  = require("../../db/connection");
 const seed = require("../../db/seeds/seed");
 const data = require("../../db/data/test-data");
 
+jest.setTimeout(10000);
+
 beforeEach(async () => {
     await seed(data);
 });

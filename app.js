@@ -1,4 +1,6 @@
+const cors = require('cors');
 const express = require("express");
+
 const Router  = express.Router;
 const {
     getTopics,
@@ -31,6 +33,8 @@ const {
 
 const PORT = 3000;
 const app = module.exports = express();
+
+app.use(cors());
 
 app.use(express.json());
 
